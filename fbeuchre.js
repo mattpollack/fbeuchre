@@ -1,11 +1,8 @@
-//include('fbnetworking.js');
-//include('fbcardclasses.js');
-
 var canvas = document.getElementById("c"), gLoop;
 var ctx = canvas.getContext("2d");
-var cardSpacesX = [50, 160, 270, 380, 490], cardSpacesY = [460, 460, 460, 460, 460]; //P3, P1, P4, P2
-var cardAreaSpacesX = [270, 270, 380, 160], cardAreaSpacesY = [80, 250, 160, 160];
-var playerNameSpacesX = [270, 270, 380, 160], playerNameSpacesY = [77, 247, 157, 157];
+var cardSpacesX = [50, 160, 270, 380, 490], cardSpacesY = [460, 460, 460, 460, 460];
+var cardAreaSpacesX = [200, 200, 310, 90], cardAreaSpacesY = [80, 250, 160, 160]; //P3, P1, P4, P2
+var playerNameSpacesX = [200, 200, 310, 90], playerNameSpacesY = [77, 247, 157, 157];
 var playerNames = [document.getElementById("player3").title,
 			   document.getElementById("player1").title,
 			   document.getElementById("player4").title, 
@@ -30,6 +27,16 @@ function drawHUD() {
 		ctx.fillText(playerNames[i], playerNameSpacesX[i], playerNameSpacesY[i]);
 	}
 	ctx.fillText(topHUD, 20, 20);
+	
+	var _img = new Image();
+	_img.src = 'images/goalone.png';
+	ctx.drawImage(_img, 440, 200-12);
+	_img.src = 'images/pass.png';
+	ctx.drawImage(_img, 440, 255-12);
+	_img.src = 'images/pickup.png';
+	ctx.drawImage(_img, 440, 310-12);
+	_img.src = 'images/suits.png';
+	ctx.drawImage(_img, 431, 365-12);
 }
 
 createDeck();
@@ -43,6 +50,7 @@ for (i = 0; i < 4; i++) {
 	cardAreaCards[i].height = 150;
 	cardAreaCards[i].vis = 0;
 }
+
 cardAreaCards[1].cardid = euchreDeck[20].cardid;
 cardAreaCards[1].vis = 1
 
@@ -57,15 +65,9 @@ for (i = 0; i < 5; i++) {
 	cardHand[i].cardid = playerHands[0][i].cardid;
 	cardHand[i].vis = 1;
 }
+
 for (i = 0; i < 24; i++) {
 	topHUD += euchreDeck[i].cardid[0] + euchreDeck[i].cardid[1] + ", ";
-}
-
-function include(filename) {
-    var js = document.createElement(filename);
-	js.type = "text/javascript";
-	js.src = filename;
-	document.body.appendChild(js);
 }
 
 function gameLoop() {
