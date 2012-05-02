@@ -1,8 +1,8 @@
 var canvas = document.getElementById("c"), gLoop;
 var ctx = canvas.getContext("2d");
 var cardSpacesX = [50, 160, 270, 380, 490], cardSpacesY = [460, 460, 460, 460, 460];
-var cardAreaSpacesX = [200, 200, 310, 90], cardAreaSpacesY = [80, 250, 160, 160]; //P3, P1, P4, P2
-var playerNameSpacesX = [200, 200, 310, 90], playerNameSpacesY = [77, 247, 157, 157];
+var cardAreaSpacesX = [200-30, 200-30, 310-30, 90-30], cardAreaSpacesY = [80, 250, 160, 160]; //P3, P1, P4, P2
+var playerNameSpacesX = [200-30, 200-30, 310-30, 90-30], playerNameSpacesY = [77, 247, 157, 157];
 var playerNames = [document.getElementById("player3").title,
 			   document.getElementById("player1").title,
 			   document.getElementById("player4").title, 
@@ -12,6 +12,7 @@ var cardHand = new Array();
 var cardAreaCards = new Array();
 var euchreDeck = new Array();
 var topHUD = "";//"Welcome to Euchre!";
+var turn = true, dealer = true, partnerDealer = true, cardDown = true;
 
 function clear() {
 	ctx.fillStyle = '#FFF';
@@ -29,14 +30,23 @@ function drawHUD() {
 	ctx.fillText(topHUD, 20, 20);
 	
 	var _img = new Image();
-	_img.src = 'images/goalone.png';
-	ctx.drawImage(_img, 440, 200-12);
-	_img.src = 'images/pass.png';
-	ctx.drawImage(_img, 440, 255-12);
-	_img.src = 'images/pickup.png';
-	ctx.drawImage(_img, 440, 310-12);
-	_img.src = 'images/suits.png';
-	ctx.drawImage(_img, 431, 365-12);
+	
+	if (turn == true) {
+		if (dealer == true || partnerDealer == true) {
+			_img.src = 'images/goalone.png';
+			ctx.drawImage(_img, 440-30, 200-12);
+		}
+		_img.src = 'images/pass.png';
+		ctx.drawImage(_img, 440-30, 255-12);
+		if (dealer == true) {
+			_img.src = 'images/pickup.png';
+			ctx.drawImage(_img, 440-30, 310-12);
+		}
+		if (cardDown == true) {
+			_img.src = 'images/suits.png';
+			ctx.drawImage(_img, 431-30, 365-12);
+		}
+	}
 }
 
 createDeck();
