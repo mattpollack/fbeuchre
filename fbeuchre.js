@@ -15,16 +15,12 @@ var topHUD = "";//"Welcome to Euchre!";
 var turn = true, dealer = true, partnerDealer = true, cardDown = true;
 
 function clear() {
-	ctx.fillStyle = '#FFF';
-	ctx.beginPath();
-	ctx.rect(0, 0, canvas.width, canvas.height);
-	ctx.closePath();
-	ctx.fill();
+	canvas.width = canvas.width;
 }
 
 function drawHUD() {
 	for (i = 0; i < 4; i++) {
-		ctx.fillStyle = "#000";
+		ctx.fillStyle = "#FFF";
 		ctx.fillText(playerNames[i], playerNameSpacesX[i], playerNameSpacesY[i]);
 	}
 	ctx.fillText(topHUD, 20, 20);

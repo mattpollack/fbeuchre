@@ -1,24 +1,3 @@
-<!-- <html>
-<head>
-
-<script type="text/javascript">
-function foo() {
-    theApplet = document.getElementById("app");
-    document.getElementById("display").innerHTML = theApplet.run("hello");
-}
-</script>
-
-</head>
-<body>
-
-<applet id="app" width=0 height=0 code="jswebtest.class"></applet>
-<form>
-    <p><input type="button" onclick="javascript:foo()" value="ok"></input></p>
-</form>
-<div id="display"></div>
-
-</body>
-</html> -->
 <html>  
 <head>  
 <title>Euchre</title>  
@@ -34,7 +13,10 @@ function foo() {
 		outline:0;  
 		border:1px solid #000;  
 		margin-left: auto;  
-		margin-right: auto;  
+		margin-right: auto;
+		background-image:url('images/bg.png');
+		font:"Comic Sans MS";
+		font-size:20px;
 	}  
 </style>
 <form id="player1" title="John Smith / Player1"></form>
