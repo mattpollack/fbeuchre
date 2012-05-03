@@ -15,8 +15,6 @@
 		margin-left: auto;  
 		margin-right: auto;
 		background-image:url('images/bg.png');
-		font:"Comic Sans MS";
-		font-size:20px;
 	}  
 </style>
 <form id="player1" title="John Smith / Player1"></form>

@@ -24,25 +24,6 @@ function drawHUD() {
 		ctx.fillText(playerNames[i], playerNameSpacesX[i], playerNameSpacesY[i]);
 	}
 	ctx.fillText(topHUD, 20, 20);
-	
-	var _img = new Image();
-	
-	if (turn == true) {
-		if (dealer == true || partnerDealer == true) {
-			_img.src = 'images/goalone.png';
-			ctx.drawImage(_img, 440-30, 200-12);
-		}
-		_img.src = 'images/pass.png';
-		ctx.drawImage(_img, 440-30, 255-12);
-		if (dealer == true) {
-			_img.src = 'images/pickup.png';
-			ctx.drawImage(_img, 440-30, 310-12);
-		}
-		if (cardDown == true) {
-			_img.src = 'images/suits.png';
-			ctx.drawImage(_img, 431-30, 365-12);
-		}
-	}
 }
 
 createDeck();
@@ -75,7 +56,6 @@ for (i = 0; i < 5; i++) {
 for (i = 0; i < 24; i++) {
 	topHUD += euchreDeck[i].cardid[0] + euchreDeck[i].cardid[1] + ", ";
 }
-
 function gameLoop() {
 	clear();
 	for( i = 0; i < 4; i++) {
@@ -86,7 +66,29 @@ function gameLoop() {
 		cardHand[i].draw();
 	}
 	drawHUD();
-	gLoop = setTimeout(gameLoop, 1000 / 50);
+	
+	if (turn == true) {
+		if (dealer == true || partnerDealer == true) {
+			var _img = new Image();
+			_img.src = 'images/goalone.png';
+			ctx.drawImage(_img, 440-30, 200-12);
+		}
+		var _img = new Image();
+		_img.src = 'images/pass.png';
+		ctx.drawImage(_img, 440-30, 255-12);
+		if (dealer == true) {
+			var _img = new Image();
+			_img.src = 'images/pickup.png';
+			ctx.drawImage(_img, 440-30, 310-12);
+		}
+		if (cardDown == true) {
+			var _img = new Image();
+			_img.src = 'images/suits.png';
+			ctx.drawImage(_img, 431-30, 365-12);
+		}
+	}
+	gLoop = setTimeout(gameLoop, 1000/50);
+	//setTimeout(gameLoop, 3000);
 }
 
 gameLoop();
