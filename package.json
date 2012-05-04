@@ -1,0 +1,5 @@
+{
+	"name" : "facebook-euchre",
+	"version" : "0.0.1",
+	"dependencies" : { "everyauth" : "0.2.32", "nano" : "2.1.0", "express": "2.5.9", "jade": "0.26.0" }
+}
