@@ -3,7 +3,7 @@ var express = require('express')
   , everyauth = require('everyauth')
   , passhash = require('password-hash')
   , nano = require('nano')('http://localhost:5984')
-  , app = require('express').createServer();
+  , app = require('express').createServer()
   , db = nano.use('euchre')
   , gameswaiting
   , gamesplaying
@@ -31,7 +31,7 @@ db.get('users', function(err, body) {
 
 app.post('/newgame', function(req, res, next) {
     if (gameswaiting.length == 0)
-	create_game();
+	gameswaiting.push(new CreateGame());
     else {
 	gameswaiting[0].players.push(req.user.id);
 	if (gameswaiting[0].players.length == 4) {
