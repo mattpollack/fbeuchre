@@ -1,5 +1,6 @@
 var canvas = document.getElementById("c"), gLoop;
 var ctx = canvas.getContext("2d");
+var playing = false;
 var cardSpacesX = [50, 160, 270, 380, 490], cardSpacesY = [460, 460, 460, 460, 460];
 var cardAreaSpacesX = [200-40, 200-40, 310-20, 90-60], cardAreaSpacesY = [80, 250, 160, 160]; //P3, P1, P4, P2
 var playerNames = [document.getElementById("player3").title,
@@ -82,15 +83,24 @@ for (i = 0; i < 24; i++) {
 topHUD += euchreDeck[i].cardid[0] + euchreDeck[i].cardid[1] + ", ";
 }
 */
+gameMenu = new menu();
+gameMenu.add("Join Game");
+gameMenu.add("Create Game");
+gameMenu.add("Training");
+gameMenu.add("Help");
 function gameLoop() {
     clear();
-    for( i = 0; i < 4; i++) {
-	cardAreaCards[i].draw();
+    if (playing == true) {
+	    for( i = 0; i < 4; i++) {
+		cardAreaCards[i].draw();
+	    }
+	    for( i = 0; i < 5; i++) {
+		cardHand[i].draw();
+	    }
+	    drawHUD();
+    } else {
+    	gameMenu.draw();
     }
-    for( i = 0; i < 5; i++) {
-	cardHand[i].draw();
-    }
-    drawHUD();
     gLoop = setTimeout(gameLoop, 1000/50);
     //setTimeout(gameLoop, 3000);
 }
