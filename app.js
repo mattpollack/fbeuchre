@@ -1,5 +1,6 @@
 var express = require('express')
   , fs = require('fs')
+  , crypto = require('crypto')
   , everyauth = require('everyauth')
   , configfile = require('./config.js')
   , jade = require('jade')
@@ -19,6 +20,7 @@ function createUser(fbdata) {
     console.log(fbdata);
     players[fbdata.id] = fbdata;
     db.insert(players, 'users', insertCallback);
+    return players[fbdata.id];
 }
 
 db.get('incompletegames', function(err, body) {
@@ -40,7 +42,9 @@ everyauth.everymodule.findUserById( function (id, callback) {
     callback(null, players[id]);
 });
 
-everyauth.facebook
+everyauth.facebookCanvas
+    .canvasPath('/')
+    .canvasPage('http://apps.facebook.com/cardeuchre')
     .appId('304117199665452')
     .appSecret(configfile.appsecret)
     .findOrCreateUser( function(session, accessToken, accessTokenExtra, fbUserMetadata) {
@@ -54,7 +58,6 @@ app.use(express.cookieParser());
 app.use(express.session({'secret': 'spadesalone'}));
 app.use(everyauth.middleware());
 app.use(app.router);
-everyauth.helpExpress(app);
 app.set('view engine', 'jade');
 
 app.post('/newgame', function(req, res, next) {
@@ -76,4 +79,4 @@ app.get('/', function(req, res) {
 });
 
 app.use(express.static(__dirname + '/public'));
-app.listen(process.env.port || 4015);
+app.listen(process.env.port || 4012);
