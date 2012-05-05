@@ -10,7 +10,7 @@ var playerHands = new Array();
 var cardHand = new Array();
 var cardAreaCards = new Array();
 var euchreDeck = new Array();
-var topHUD = "";//"Welcome to Euchre!";
+var topHUD = "";
 var turn = true, dealer = true, partnerDealer = true, cardDown = true;
 
 function clear() {
