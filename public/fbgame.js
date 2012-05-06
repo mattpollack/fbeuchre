@@ -88,6 +88,7 @@ gameMenu.add("Join Game");
 gameMenu.add("Create Game");
 gameMenu.add("Training");
 gameMenu.add("Help");
+
 function gameLoop() {
     clear();
     if (playing == true) {
@@ -104,5 +105,7 @@ function gameLoop() {
     gLoop = setTimeout(gameLoop, 1000/50);
     //setTimeout(gameLoop, 3000);
 }
+
+canvas.addEventListener('click', gameMenu.on_canvas_click, false);
 
 gameLoop();
