@@ -4,7 +4,7 @@ function menu() {
 		
 	this.add = function(_string) {
 		this.menuItems.push(_string);
-		var y = 320 - ((this.menuItems.length/2) *80);
+		var y = 320 - ((this.menuItems.length/2) * 80);
 		for (i = 0; i < this.menuItems.length; i++) {
 			this.locationListener[i] = new Array();
 			this.locationListener[i].push(123);
@@ -22,7 +22,7 @@ function menu() {
 		ctx.fillStyle = "#FFF";
 		ctx.textAlign = "center";
 		
-		var y = 320 - ((this.menuItems.length/2) *80);
+		var y = 320 - ((this.menuItems.length/2) * 80);
 		for (i = 0; i < this.menuItems.length; i++) {
 			var _ibg = new Image();
 			_ibg.src = 'images/menuItemBg.png';
