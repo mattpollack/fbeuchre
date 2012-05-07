@@ -85,9 +85,5 @@ app.post('/newgame', function(req, res, next) {
     res.redirect('/');
 });
 
-app.get('/', function(req, res) {
-    res.render('index.jade');
-});
-
 app.use(express.static(__dirname + '/public'));
 app.listen(process.env.port || 4012);
