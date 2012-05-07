@@ -4,7 +4,7 @@ function menu() {
 		
 	this.add = function(_string) {
 		this.menuItems.push(_string);
-		var y = 320 - ((this.menuItems.length/2) *50);
+		var y = 320 - ((this.menuItems.length/2) *80);
 		for (i = 0; i < this.menuItems.length; i++) {
 			this.locationListener[i] = new Array();
 			this.locationListener[i].push(123);
@@ -22,7 +22,7 @@ function menu() {
 		ctx.fillStyle = "#FFF";
 		ctx.textAlign = "center";
 		
-		var y = 320 - ((this.menuItems.length/2) *60);
+		var y = 320 - ((this.menuItems.length/2) *80);
 		for (i = 0; i < this.menuItems.length; i++) {
 			var _ibg = new Image();
 			_ibg.src = 'images/menuItemBg.png';
@@ -40,9 +40,6 @@ function menu() {
 	    for (i = 0; i < gameMenu.locationListener.length; i++) {
 	    	if (x >= gameMenu.locationListener[i][0] && x <= gameMenu.locationListener[i][0]+394 &&
 	    		gameMenu.locationListener[i][1] >= y && gameMenu.locationListener[i][1] <= y+45) {
-	    		
-	    		//alert(gameMenu.locationListener[i][0] + ", " + gameMenu.locationListener[i][1]);
-	    		//alert(x + ", " + y);
 	    		
 	    		if (gameMenu.menuItems[i] == "Join Game" || gameMenu.menuItems[i] == "Create Game") {
 	    			playing = true;
