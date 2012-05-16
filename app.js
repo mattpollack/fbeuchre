@@ -1,6 +1,6 @@
 var express = require('express')
   , fs = require('fs')
-  , FB = require('fb')
+  , FB = require('facebook')
   , crypto = require('crypto')
   , everyauth = require('everyauth')
   , configfile = require('./config.js')
@@ -30,6 +30,10 @@ function createUser(fbdata) {
     });
     db.insert(players, 'users', insertCallback);
     return players[id];
+}
+
+function createGame() {
+
 }
 
 db.get('incompletegames', function(err, body) {
