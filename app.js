@@ -9,6 +9,8 @@ var express = require('express')
   , nano = require('nano')('http://localhost:5984')
   , app = require('express').createServer()
   , db = nano.use('euchre')
+  , gameidtowaiting = new Object();
+  , gameidtoplaying = new Object();
   , gameswaiting
   , gamesplaying
   , newgameid
@@ -17,7 +19,7 @@ var express = require('express')
 var websocket;
 io.sockets.on('connection', function(socket) {
     websocket = socket;
-}
+});
 
 function insertCallback(err, body) {
     console.log(err);
@@ -93,15 +95,18 @@ app.use(app.router);
 app.set('view engine', 'jade');
 
 app.post('/newgame', function(req, res, next) {
-    var data;
+    var data, createdgid;
     if (gameswaiting.length == 0) {
 	data = new CreateGame(req.user.id);
+	createdgid = data.gid;
+	gameidtowaiting[createdgid] = gameswaiting.length;
 	gameswaiting.push(data);
     } else {
-	gameswaiting[0].players.push(req.user.id);
+	gameswaiting[0].players.push(players[req.user.id]);
 	data = gameswaiting[0];
 	if (gameswaiting[0].players.length == 4) {
-	    gamesplaying.append(gameswaiting.shift());
+	    gameidtoplaying[data.gid] = gamesplaying.length;
+	    gamesplaying.push(gameswaiting.shift());
 	    db.insert(gamesplaying, 'gamesinprogress', insertCallback);
 	}
     }
@@ -109,6 +114,52 @@ app.post('/newgame', function(req, res, next) {
     res.send(data, {'Content-type': 'text/json'});
 });
 
+app.post('/leavegame', function(req, res, next) {
+    var jsonasstring = "";
+    req.on('data', function(stuff) {
+	jsonasstring += stuff.toString();
+	try {
+	    var jsontouse = JSON.parse(jsonasstring);
+	    var newplayersforgame = new Array();
+	    if (gameidtowaiting[jsontouse.gid]) {
+		var waitid = gameidtowaiting[jsontouse.gid];
+		for (player in gameswaiting[waitid].players)
+		    if (gameswaiting[waitid].players[player].id != req.user.id)
+			newplayersforgame.push(gameswaiting[waitid].players[player]);
+		if (newplayers.length == 0) {
+		    gameswaiting.splice(waitid, 1);
+		    for (waitgid in gameidtowaiting) {
+			if (gameidtowaiting[waitgid] > waitid)
+			    gameidtowaiting[waitgid]--;
+			else (gameidtowaiting[waitgid] == waitid)
+			    gameidtowaiting[waitgid] = null;
+		    }
+		} else
+		    gameswaiting[waitid].players = newplayersforgame;
+	    } else if (gameidtoplaying[jsontouse.gid]) {
+		var playid = gameidtoplaying[jsontouse.gid];
+		for (player in gamesplaying[playid].players)
+		    if (gamesplaying[playid].players[player].id != req.user.id)
+			newplayersforgame.push(gamesplaying[playid].players[player]);
+		if (newplayers.length == 0) {
+		    gamesplaying.splice(playid, 1);
+		    for (playgid in gameidtoplaying) {
+			if (gameidtoplaying[playgid] > playid)
+			    gameidtoplaying[playgid]--;
+			else (gameidtoplaying[playgid] == playid)
+			    gameidtoplaying[playgid] = null;
+		    }
+		} else
+		    gameswaiting[waitid].players = newplayersforgame;
+	    } else {
+		console.log("WHAT IS THIS SHIT");
+	    }
+	} catch(SyntaxError) {
+	    console.log(SyntaxError);
+	}
+    });
+});
+    
 //app.get('/listgames', function(req, res, next) {
 //    
 //});
