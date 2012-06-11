@@ -1,7 +1,7 @@
 var express = require('express')
   , fs = require('fs')
   , FB = require('facebook')
-  , vario = require('socket.io').listen(80)
+  , io = require('socket.io')
   , crypto = require('crypto')
   , everyauth = require('everyauth')
   , configfile = require('./config.js')
@@ -11,15 +11,19 @@ var express = require('express')
   , db = nano.use('euchre')
   , gameidtowaiting = new Object();
   , gameidtoplaying = new Object();
+  , playeridtosocket = new Object();
   , gameswaiting
   , gamesplaying
   , newgameid
   , players;
 
-var websocket;
+io = io.listen(app);
+
 io.sockets.on('connection', function(socket) {
-    websocket = socket;
-});
+    socket.on('new', function(data) {
+	playeridtosocket[data.pid] = socket.id;
+    });
+}
 
 function insertCallback(err, body) {
     console.log(err);
@@ -31,6 +35,8 @@ function createUser(fbdata) {
     var id = fbdata.user_id
     players[id] = new Object;
     players[id].id = fbdata.user_id;
+    players[id].name = fbdata.name; // not sure if right
+    players[id].imgurl = fbdata.picture; // not sure if right
     FB.api(fbdata.user_id, { fields: ['name'] }, function (res) {
 	if (res && !res.error)
 	    players[id].name = res.name;
@@ -109,6 +115,9 @@ app.post('/newgame', function(req, res, next) {
 	    gamesplaying.push(gameswaiting.shift());
 	    db.insert(gamesplaying, 'gamesinprogress', insertCallback);
 	}
+	for (player in data.players)
+	    if (data.players[player].id != req.user.id)
+		io.sockets[playeridtosocket[data.players[player].id]].emit('update', data);
     }
     db.insert(gameswaiting, 'incompletegames', insertCallback);
     res.send(data, {'Content-type': 'text/json'});
@@ -121,6 +130,7 @@ app.post('/leavegame', function(req, res, next) {
 	try {
 	    var jsontouse = JSON.parse(jsonasstring);
 	    var newplayersforgame = new Array();
+	    var data;
 	    if (gameidtowaiting[jsontouse.gid]) {
 		var waitid = gameidtowaiting[jsontouse.gid];
 		for (player in gameswaiting[waitid].players)
@@ -134,8 +144,11 @@ app.post('/leavegame', function(req, res, next) {
 			else (gameidtowaiting[waitgid] == waitid)
 			    gameidtowaiting[waitgid] = null;
 		    }
-		} else
+		    data = null;
+		} else {
 		    gameswaiting[waitid].players = newplayersforgame;
+		    data = gameswaiting[waitid];
+		}
 	    } else if (gameidtoplaying[jsontouse.gid]) {
 		var playid = gameidtoplaying[jsontouse.gid];
 		for (player in gamesplaying[playid].players)
@@ -149,13 +162,23 @@ app.post('/leavegame', function(req, res, next) {
 			else (gameidtoplaying[playgid] == playid)
 			    gameidtoplaying[playgid] = null;
 		    }
-		} else
+		    data = null;
+		} else {
 		    gameswaiting[waitid].players = newplayersforgame;
+		    data = gameswaiting[waitid];
+		}
 	    } else {
 		console.log("WHAT IS THIS SHIT");
+		res.send("{success: False}", {'Content-type': 'text/json'});
+		return;
 	    }
+	    if (data)
+		for (player in newplayersforgame)
+		    io.sockets[playeridtosocket[newplayersforgame[player].id]].emit('update', data)
+	    res.send("{success: True}", {'Content-type': 'text/json'});
 	} catch(SyntaxError) {
 	    console.log(SyntaxError);
+	    res.send("{success: False}", {'Content-type': 'text/json'});
 	}
     });
 });
