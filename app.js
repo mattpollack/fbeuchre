@@ -1,6 +1,7 @@
 var express = require('express')
   , fs = require('fs')
   , FB = require('facebook')
+  , vario = require('socket.io').listen(80)
   , crypto = require('crypto')
   , everyauth = require('everyauth')
   , configfile = require('./config.js')
@@ -10,7 +11,13 @@ var express = require('express')
   , db = nano.use('euchre')
   , gameswaiting
   , gamesplaying
+  , newgameid
   , players;
+
+var websocket;
+io.sockets.on('connection', function(socket) {
+    websocket = socket;
+}
 
 function insertCallback(err, body) {
     console.log(err);
@@ -32,9 +39,19 @@ function createUser(fbdata) {
     return players[id];
 }
 
-function createGame() {
-
+function CreateGame(pid) {
+    this.gid = newgameid;
+    newgameid++;
+    db.insert(newgameid, 'newgid', insertCallback);
+    this.players = new Array();
+    this.players.push(players[pid]);
+    return this;
 }
+
+db.get('newgid', function(err, body) {
+    if (!err)
+	newgameid = body;
+});
 
 db.get('incompletegames', function(err, body) {
     if (!err)
@@ -76,18 +93,25 @@ app.use(app.router);
 app.set('view engine', 'jade');
 
 app.post('/newgame', function(req, res, next) {
-    if (gameswaiting.length == 0)
-	gameswaiting.push(new CreateGame());
-    else {
+    var data;
+    if (gameswaiting.length == 0) {
+	data = new CreateGame(req.user.id);
+	gameswaiting.push(data);
+    } else {
 	gameswaiting[0].players.push(req.user.id);
+	data = gameswaiting[0];
 	if (gameswaiting[0].players.length == 4) {
-	    gamesplayinga.append(gameswaiting.pop());
+	    gamesplaying.append(gameswaiting.shift());
 	    db.insert(gamesplaying, 'gamesinprogress', insertCallback);
 	}
     }
     db.insert(gameswaiting, 'incompletegames', insertCallback);
-    res.redirect('/');
+    res.send(data, {'Content-type': 'text/json'});
 });
+
+//app.get('/listgames', function(req, res, next) {
+//    
+//});
 
 app.use(express.static(__dirname + '/public'));
 app.listen(process.env.port || 4012);
