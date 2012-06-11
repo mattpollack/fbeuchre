@@ -41,8 +41,24 @@ function menu() {
 	    	if (x >= gameMenu.locationListener[i][0] && x <= gameMenu.locationListener[i][0]+394 &&
 	    		gameMenu.locationListener[i][1] >= y && gameMenu.locationListener[i][1] <= y+45) {
 	    		
-	    		if (gameMenu.menuItems[i] == "Join Game") { // || gameMenu.menuItems[i] == "Create Game" {
-	    			playing = true;
+	    		if (gameMenu.menuItems[i] == "Join Game" || gameMenu.menuItems[i] == "Create Game") {
+	    			var gameReady = false;
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.onreadystatechange = function() {
+						if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+					    	document.getElementById("myDiv").innerHTML = xmlhttp.responseText;
+					    }
+					}
+					xmlhttp.open("POST","/newgame",true);
+					xmlhttp.send("null");
+	    			// url /newgame
+
+	    			
+	    			
+	    			//Evaluate a valid game id and join first...
+	    			if (gameReady) {
+	    				playing = true;
+	    			}
 	    		}
 	    	}	
 	    }

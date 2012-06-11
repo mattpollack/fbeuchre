@@ -77,12 +77,6 @@ for (i = 0; i < 5; i++) {
     cardHand[i].cardid = playerHands[0][i].cardid;
     cardHand[i].vis = 1;
 }
-
-/*
-for (i = 0; i < 24; i++) {
-topHUD += euchreDeck[i].cardid[0] + euchreDeck[i].cardid[1] + ", ";
-}
-*/
 gameMenu = new menu();
 gameMenu.add("Join Game");
 gameMenu.add("Create Game");

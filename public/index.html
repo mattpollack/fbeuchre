@@ -2,6 +2,14 @@
 <head>  
 <title>Euchre</title>  
 <link REL="SHORTCUT ICON" HREF="images/favicon.png">
+<script src="/public/socket.io.js"></script>
+<script>
+	var socket = io.connect('http://localhost');
+	socket.on('/newgame', function (data) {
+		//console.log(data);
+		socket.emit('my other event', { my: 'data' });
+	});
+</script>
 <style>  
 	body {  
 		margin:0px;  
