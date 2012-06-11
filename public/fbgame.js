@@ -21,33 +21,33 @@ function clear() {
 function drawHUD() {
     ctx.font = '15px sans-serif';
     for (i = 0; i < 4; i++) {
-	ctx.fillStyle = "#FFF";
-	ctx.textAlign = "center";
-	ctx.fillText(playerNames[i], (cardAreaSpacesX[i]+50), cardAreaSpacesY[i]-4);
+		ctx.fillStyle = "#FFF";
+		ctx.textAlign = "center";
+		ctx.fillText(playerNames[i], (cardAreaSpacesX[i]+50), cardAreaSpacesY[i]-4);
     }
     ctx.font = '25px sans-serif';
     topHUD = "Player updates here ex: John Smith picked spades";
     ctx.fillText(topHUD, 320, 30);
     
     if (turn == true) {
-	if (dealer == true || partnerDealer == true) {
-	    var _img = new Image();
-	    _img.src = 'images/goalone.png';
-	    ctx.drawImage(_img, 440-10, 200-12);
-	}
-	var _img = new Image();
-	_img.src = 'images/pass.png';
-	ctx.drawImage(_img, 440-10, 255-12);
-	if (dealer == true) {
-	    var _img = new Image();
-	    _img.src = 'images/pickup.png';
-	    ctx.drawImage(_img, 440-10, 310-12);
-	}
-	if (cardDown == true) {
-	    var _img = new Image();
-	    _img.src = 'images/suits.png';
-	    ctx.drawImage(_img, 431-10, 365-12);
-	}
+		if (dealer == true || partnerDealer == true) {
+		    var _img = new Image();
+		    _img.src = 'images/goalone.png';
+		    ctx.drawImage(_img, 440-10, 200-12);
+		}
+		var _img = new Image();
+		_img.src = 'images/pass.png';
+		ctx.drawImage(_img, 440-10, 255-12);
+		if (dealer == true) {
+		    var _img = new Image();
+		    _img.src = 'images/pickup.png';
+		    ctx.drawImage(_img, 440-10, 310-12);
+		}
+		if (cardDown == true) {
+		    var _img = new Image();
+		    _img.src = 'images/suits.png';
+		    ctx.drawImage(_img, 431-10, 365-12);
+		}
     }
 }
 
@@ -93,17 +93,17 @@ function gameLoop() {
     clear();
     if (playing == true) {
 	    for( i = 0; i < 4; i++) {
-		cardAreaCards[i].draw();
+			cardAreaCards[i].draw();
 	    }
 	    for( i = 0; i < 5; i++) {
-		cardHand[i].draw();
+			cardHand[i].draw();
 	    }
 	    drawHUD();
     } else {
     	gameMenu.draw();
     }
+    //topHUD = requestDatabaseQuery("games");
     gLoop = setTimeout(gameLoop, 1000/50);
-    //setTimeout(gameLoop, 3000);
 }
 
 canvas.addEventListener('click', gameMenu.on_canvas_click, false);

@@ -41,7 +41,7 @@ function menu() {
 	    	if (x >= gameMenu.locationListener[i][0] && x <= gameMenu.locationListener[i][0]+394 &&
 	    		gameMenu.locationListener[i][1] >= y && gameMenu.locationListener[i][1] <= y+45) {
 	    		
-	    		if (gameMenu.menuItems[i] == "Join Game" || gameMenu.menuItems[i] == "Create Game") {
+	    		if (gameMenu.menuItems[i] == "Join Game") { // || gameMenu.menuItems[i] == "Create Game" {
 	    			playing = true;
 	    		}
 	    	}	
