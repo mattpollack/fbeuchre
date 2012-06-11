@@ -1,3 +1,5 @@
 *.DS_Store
 *~
 *.psd
+node_modules
+config.js
