@@ -1,10 +1,14 @@
 window.fbAsyncInit = function() {
     FB.init({
-	appId      : 'YOUR_APP_ID', // App ID
-	channelUrl : '//WWW.YOUR_DOMAIN.COM/channel.html', // Channel File
+	appId      : '304117199665452', // App ID
+	channelUrl : 'http://fbeuchre.herokuapp.com/public/channel.html', // Channel File
 	status     : true, // check login status
 	cookie     : true, // enable cookies to allow the server to access the session
 	xfbml      : true  // parse XFBML
+    });
+
+    FB.api('/me/picture', function(response) { 
+        topHUD = response;
     });
 
     // Additional initialization code here

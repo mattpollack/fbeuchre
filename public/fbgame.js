@@ -13,6 +13,8 @@ var cardAreaCards = new Array();
 var euchreDeck = new Array();
 var topHUD = "";
 var turn = true, dealer = true, partnerDealer = true, cardDown = true;
+var waitingForGame = false, gameReady = false, gameObject = null;
+var console = "Hello";
 
 function clear() {
     canvas.width = canvas.width;
@@ -26,7 +28,7 @@ function drawHUD() {
 		ctx.fillText(playerNames[i], (cardAreaSpacesX[i]+50), cardAreaSpacesY[i]-4);
     }
     ctx.font = '25px sans-serif';
-    topHUD = "Player updates here ex: John Smith picked spades";
+    //topHUD = "Player updates here ex: John Smith picked spades";
     ctx.fillText(topHUD, 320, 30);
     
     if (turn == true) {
@@ -96,7 +98,19 @@ function gameLoop() {
     } else {
     	gameMenu.draw();
     }
+    if (waitingForGame) {
+		// url /newgame
+		//FB.
+		//Evaluate a valid game id and join first...
+		if (gameReady) {
+			playing = true;
+		}
+    }
     //topHUD = requestDatabaseQuery("games");
+    ctx.font = '20px sans-serif';
+    ctx.fillStyle = "#FFF";
+	ctx.textAlign = "left";
+	ctx.fillText(console, 40, 20);
     gLoop = setTimeout(gameLoop, 1000/50);
 }
 

@@ -42,7 +42,6 @@ function menu() {
 	    		gameMenu.locationListener[i][1] >= y && gameMenu.locationListener[i][1] <= y+45) {
 	    		
 	    		if (gameMenu.menuItems[i] == "Join Game" || gameMenu.menuItems[i] == "Create Game") {
-	    			var gameReady = false;
 					var xmlhttp = new XMLHttpRequest();
 					xmlhttp.onreadystatechange = function() {
 						if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
@@ -51,14 +50,7 @@ function menu() {
 					}
 					xmlhttp.open("POST","/newgame",true);
 					xmlhttp.send("null");
-	    			// url /newgame
-
-	    			
-	    			
-	    			//Evaluate a valid game id and join first...
-	    			if (gameReady) {
-	    				playing = true;
-	    			}
+	    			waitingForGame = true;
 	    		}
 	    	}	
 	    }
