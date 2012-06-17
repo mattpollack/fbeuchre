@@ -7,9 +7,16 @@ window.fbAsyncInit = function() {
 	xfbml      : true  // parse XFBML
     });
 
-    FB.api('/me/picture', function(response) { 
-        topHUD = response;
+    var socket = io.connect();
+    socket.on('connect', function (data) {
+        var pid;
+        FB.api('/me', function(response) { pid = response.id; });
+        socket.emit('new', { 'pid': pid});
     });
+
+    socket.on('update', function (gamedata) {
+        //update UI
+    })
 
     // Additional initialization code here
 };

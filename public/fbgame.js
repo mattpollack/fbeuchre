@@ -14,7 +14,7 @@ var euchreDeck = new Array();
 var topHUD = "";
 var turn = true, dealer = true, partnerDealer = true, cardDown = true;
 var waitingForGame = false, gameReady = false, gameObject = null;
-var console = "Hello";
+var console = "> log";
 
 function clear() {
     canvas.width = canvas.width;
@@ -85,6 +85,8 @@ gameMenu.add("Create Game");
 gameMenu.add("Training");
 gameMenu.add("Help");
 
+var loadscreen = new waitscreen();
+
 function gameLoop() {
     clear();
     if (playing == true) {
@@ -95,22 +97,24 @@ function gameLoop() {
 			cardHand[i].draw();
 	    }
 	    drawHUD();
-    } else {
-    	gameMenu.draw();
-    }
-    if (waitingForGame) {
+    } else if (waitingForGame) {
 		// url /newgame
 		//FB.
 		//Evaluate a valid game id and join first...
+
+		loadscreen.draw();
+
 		if (gameReady) {
 			playing = true;
 		}
+    } else {
+    	gameMenu.draw();
     }
     //topHUD = requestDatabaseQuery("games");
     ctx.font = '20px sans-serif';
     ctx.fillStyle = "#FFF";
 	ctx.textAlign = "left";
-	ctx.fillText(console, 40, 20);
+	ctx.fillText(console, 10, 20);
     gLoop = setTimeout(gameLoop, 1000/50);
 }
 
