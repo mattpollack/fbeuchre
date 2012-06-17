@@ -1,0 +1,60 @@
+/newgame
+	req:
+		null;
+	res:
+		{
+			gid: int,
+			players: [
+					{
+						//stuff
+					},
+					...
+				] //minlength 1, maxlength: 4
+		}
+
+/leavegame
+	req:
+		{
+			gid: int //game id
+		};
+	res:
+		{
+			success: boolean
+		};
+
+/requestCards
+	req:
+		null;
+	res: 
+		{
+			hand: [
+					{
+						cardid: string[2] //card id as [cardsuit, card number]
+					},
+					...
+				] //minmaxlength 5
+		};
+
+/requestPosition
+	req:
+		null;
+	res: 
+		{
+			position: int
+		};
+
+/requestPoints
+	req:
+		null;
+	res: 
+		{
+			points: int
+		};
+
+/requestTricks
+	req:
+		null;
+	res: 
+		{
+			tricks: int
+		};
