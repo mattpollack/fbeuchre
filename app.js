@@ -23,6 +23,18 @@ io.sockets.on('connection', function(socket) {
     socket.on('new', function(data) {
 	playeridtosocket[data.pid] = socket.id;
     });
+});
+
+deck = new Array();
+var suits = ['s', 'h', 'd', 'c']
+for (suit in suits) {
+    for(var cardval = 0;cardval < 6; cardval++) {
+	var newcard = new Object();
+	newcard.cardid = new Array();
+	newcard.cardid.push(suit);
+	newcard.cardid.push(cardval);
+	deck.push(newcard);
+    }
 }
 
 function insertCallback(err, body) {
@@ -45,6 +57,20 @@ function createUser(fbdata) {
     });
     db.insert(players, 'users', insertCallback);
     return players[id];
+}
+
+function dealCards(game) {
+    var tempdeck = new Array();
+    for (card in deck)
+	tempdeck.push(deck[card]);
+    for (player in game.players) {
+	game.players[player].hand = new Array();
+	while (game.players[player].hand.length != 5) {
+	    var roll = Math.floor(Math.random()*tempdeck.length);
+	    game.players[player].hand.push(tempdeck[roll]);
+	    tempdeck.splice(roll,1);
+	}
+    }
 }
 
 function CreateGame(pid) {
@@ -111,6 +137,7 @@ app.post('/newgame', function(req, res, next) {
 	gameswaiting[0].players.push(players[req.user.id]);
 	data = gameswaiting[0];
 	if (gameswaiting[0].players.length == 4) {
+	    dealCards(gameswaiting[0]);
 	    gameidtoplaying[data.gid] = gamesplaying.length;
 	    gamesplaying.push(gameswaiting.shift());
 	    db.insert(gamesplaying, 'gamesinprogress', insertCallback);
@@ -164,8 +191,8 @@ app.post('/leavegame', function(req, res, next) {
 		    }
 		    data = null;
 		} else {
-		    gameswaiting[waitid].players = newplayersforgame;
-		    data = gameswaiting[waitid];
+		    gamesplaying[playid].players = newplayersforgame;
+		    data = gamesplaying[playid];
 		}
 	    } else {
 		console.log("WHAT IS THIS SHIT");
@@ -182,7 +209,32 @@ app.post('/leavegame', function(req, res, next) {
 	}
     });
 });
-    
+
+app.post('/requestCards', function(req, res, next) {
+    var jsonasstring = "";
+    req.on('data', function(stuff) {
+	jsonasstring += stuff.toString();
+	try {
+	    var jsontouse = JSON.parse(jsonasstring);
+	    if (gameidtoplaying[jsontouse.gid]) {
+		var requestedgame = gamesplaying[gameidtoplaying[jsontouse]];
+		for (player in requestedgame.players)
+		    if (requestedgames.players[player].id == req.user.id) {
+			data = new Object();
+			data.hand = requestedgames.players[player].hand;
+		    }
+		if (data) {
+		    res.send(JSON.stringify(data), {'Content-type': 'text/json'});
+		    return;
+		}
+	    }
+	} catch(SyntaxError) {
+	    console.log(SyntaxError);
+	}
+	res.send("{}", {'Content-type': 'text/json'});
+    });
+});
+
 //app.get('/listgames', function(req, res, next) {
 //    
 //});
