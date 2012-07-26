@@ -24,7 +24,9 @@
 
 /requestCards
 	req:
-		null;
+		{
+			gid: int // game id
+		};
 	res: 
 		{
 			hand: [
@@ -37,7 +39,9 @@
 
 /requestPosition
 	req:
-		null;
+		{
+			gid: int //game id
+		};
 	res: 
 		{
 			position: int
@@ -45,7 +49,9 @@
 
 /requestPoints
 	req:
-		null;
+		{
+			gid: int //game id
+		};
 	res: 
 		{
 			points: int
@@ -53,7 +59,9 @@
 
 /requestTricks
 	req:
-		null;
+		{
+			gid: int //game id
+		};
 	res: 
 		{
 			tricks: int
