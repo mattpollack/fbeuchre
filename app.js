@@ -1,7 +1,7 @@
 var express = require('express')
   , fs = require('fs')
   , FB = require('facebook')
-  , vario = require('socket.io').listen(80)
+  , io = require('socket.io')
   , crypto = require('crypto')
   , everyauth = require('everyauth')
   , configfile = require('./config.js')
@@ -11,15 +11,31 @@ var express = require('express')
   , db = nano.use('euchre')
   , gameidtowaiting = new Object();
   , gameidtoplaying = new Object();
+  , playeridtosocket = new Object();
   , gameswaiting
   , gamesplaying
   , newgameid
   , players;
 
-var websocket;
+io = io.listen(app);
+
 io.sockets.on('connection', function(socket) {
-    websocket = socket;
+    socket.on('new', function(data) {
+	playeridtosocket[data.pid] = socket.id;
+    });
 });
+
+deck = new Array();
+var suits = ['s', 'h', 'd', 'c']
+for (suit in suits) {
+    for(var cardval = 0;cardval < 6; cardval++) {
+	var newcard = new Object();
+	newcard.cardid = new Array();
+	newcard.cardid.push(suit);
+	newcard.cardid.push(cardval);
+	deck.push(newcard);
+    }
+}
 
 function insertCallback(err, body) {
     console.log(err);
@@ -31,6 +47,8 @@ function createUser(fbdata) {
     var id = fbdata.user_id
     players[id] = new Object;
     players[id].id = fbdata.user_id;
+    players[id].name = fbdata.name; // not sure if right
+    players[id].imgurl = fbdata.picture; // not sure if right
     FB.api(fbdata.user_id, { fields: ['name'] }, function (res) {
 	if (res && !res.error)
 	    players[id].name = res.name;
@@ -39,6 +57,20 @@ function createUser(fbdata) {
     });
     db.insert(players, 'users', insertCallback);
     return players[id];
+}
+
+function dealCards(game) {
+    var tempdeck = new Array();
+    for (card in deck)
+	tempdeck.push(deck[card]);
+    for (player in game.players) {
+	game.players[player].hand = new Array();
+	while (game.players[player].hand.length != 5) {
+	    var roll = Math.floor(Math.random()*tempdeck.length);
+	    game.players[player].hand.push(tempdeck[roll]);
+	    tempdeck.splice(roll,1);
+	}
+    }
 }
 
 function CreateGame(pid) {
@@ -105,10 +137,14 @@ app.post('/newgame', function(req, res, next) {
 	gameswaiting[0].players.push(players[req.user.id]);
 	data = gameswaiting[0];
 	if (gameswaiting[0].players.length == 4) {
+	    dealCards(gameswaiting[0]);
 	    gameidtoplaying[data.gid] = gamesplaying.length;
 	    gamesplaying.push(gameswaiting.shift());
 	    db.insert(gamesplaying, 'gamesinprogress', insertCallback);
 	}
+	for (player in data.players)
+	    if (data.players[player].id != req.user.id)
+		io.sockets[playeridtosocket[data.players[player].id]].emit('update', data);
     }
     db.insert(gameswaiting, 'incompletegames', insertCallback);
     res.send(data, {'Content-type': 'text/json'});
@@ -121,6 +157,7 @@ app.post('/leavegame', function(req, res, next) {
 	try {
 	    var jsontouse = JSON.parse(jsonasstring);
 	    var newplayersforgame = new Array();
+	    var data;
 	    if (gameidtowaiting[jsontouse.gid]) {
 		var waitid = gameidtowaiting[jsontouse.gid];
 		for (player in gameswaiting[waitid].players)
@@ -134,8 +171,11 @@ app.post('/leavegame', function(req, res, next) {
 			else (gameidtowaiting[waitgid] == waitid)
 			    gameidtowaiting[waitgid] = null;
 		    }
-		} else
+		    data = null;
+		} else {
 		    gameswaiting[waitid].players = newplayersforgame;
+		    data = gameswaiting[waitid];
+		}
 	    } else if (gameidtoplaying[jsontouse.gid]) {
 		var playid = gameidtoplaying[jsontouse.gid];
 		for (player in gamesplaying[playid].players)
@@ -149,17 +189,52 @@ app.post('/leavegame', function(req, res, next) {
 			else (gameidtoplaying[playgid] == playid)
 			    gameidtoplaying[playgid] = null;
 		    }
-		} else
-		    gameswaiting[waitid].players = newplayersforgame;
+		    data = null;
+		} else {
+		    gamesplaying[playid].players = newplayersforgame;
+		    data = gamesplaying[playid];
+		}
 	    } else {
 		console.log("WHAT IS THIS SHIT");
+		res.send("{success: False}", {'Content-type': 'text/json'});
+		return;
+	    }
+	    if (data)
+		for (player in newplayersforgame)
+		    io.sockets[playeridtosocket[newplayersforgame[player].id]].emit('update', data)
+	    res.send("{success: True}", {'Content-type': 'text/json'});
+	} catch(SyntaxError) {
+	    console.log(SyntaxError);
+	    res.send("{success: False}", {'Content-type': 'text/json'});
+	}
+    });
+});
+
+app.post('/requestCards', function(req, res, next) {
+    var jsonasstring = "";
+    req.on('data', function(stuff) {
+	jsonasstring += stuff.toString();
+	try {
+	    var jsontouse = JSON.parse(jsonasstring);
+	    if (gameidtoplaying[jsontouse.gid]) {
+		var requestedgame = gamesplaying[gameidtoplaying[jsontouse]];
+		for (player in requestedgame.players)
+		    if (requestedgames.players[player].id == req.user.id) {
+			data = new Object();
+			data.hand = requestedgames.players[player].hand;
+		    }
+		if (data) {
+		    res.send(JSON.stringify(data), {'Content-type': 'text/json'});
+		    return;
+		}
 	    }
 	} catch(SyntaxError) {
 	    console.log(SyntaxError);
 	}
+	res.send("{}", {'Content-type': 'text/json'});
     });
 });
-    
+
 //app.get('/listgames', function(req, res, next) {
 //    
 //});
