@@ -265,7 +265,7 @@ app.post('/requestPosition', function(req, res, next) {
     });
 });
 
-app.post('/playCard' function(req, res, next) {
+app.post('/playCard', function(req, res, next) {
     var jsonasstring = "";
     req.on('data', function(stuff) {
 	jsonasstring += stuff.toString();
