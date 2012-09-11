@@ -66,3 +66,14 @@
 		{
 			tricks: int
 		};
+
+/playCard
+	req:
+		{
+			gid: int //game id
+			card: string
+		};
+	res:
+		{
+		};
+

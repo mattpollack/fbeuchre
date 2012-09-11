@@ -9,9 +9,9 @@ var express = require('express')
   , nano = require('nano')('http://localhost:5984')
   , app = require('express').createServer()
   , db = nano.use('euchre')
-  , gameidtowaiting = new Object();
-  , gameidtoplaying = new Object();
-  , playeridtosocket = new Object();
+  , gameidtowaiting = new Object()
+  , gameidtoplaying = new Object()
+  , playeridtosocket = new Object()
   , gameswaiting
   , gamesplaying
   , newgameid
@@ -61,6 +61,7 @@ function createUser(fbdata) {
 
 function dealCards(game) {
     var tempdeck = new Array();
+    var pos = Math.floor(Math.random()*4);
     for (card in deck)
 	tempdeck.push(deck[card]);
     for (player in game.players) {
@@ -70,6 +71,10 @@ function dealCards(game) {
 	    game.players[player].hand.push(tempdeck[roll]);
 	    tempdeck.splice(roll,1);
 	}
+	game.players[player].position = pos;
+	pos++;
+	if (pos > 3)
+	    pos = 0;
     }
 }
 
@@ -144,7 +149,7 @@ app.post('/newgame', function(req, res, next) {
 	}
 	for (player in data.players)
 	    if (data.players[player].id != req.user.id)
-		io.sockets[playeridtosocket[data.players[player].id]].emit('update', data);
+		io.sockets[playeridtosocket[data.players[player].id]].emit('updateplayers', data);
     }
     db.insert(gameswaiting, 'incompletegames', insertCallback);
     res.send(data, {'Content-type': 'text/json'});
@@ -201,7 +206,7 @@ app.post('/leavegame', function(req, res, next) {
 	    }
 	    if (data)
 		for (player in newplayersforgame)
-		    io.sockets[playeridtosocket[newplayersforgame[player].id]].emit('update', data)
+		    io.sockets[playeridtosocket[newplayersforgame[player].id]].emit('updateplayers', data)
 	    res.send("{success: True}", {'Content-type': 'text/json'});
 	} catch(SyntaxError) {
 	    console.log(SyntaxError);
@@ -235,8 +240,63 @@ app.post('/requestCards', function(req, res, next) {
     });
 });
 
+app.post('/requestPosition', function(req, res, next) {
+    var jsonasstring = "";
+    req.on('data', function(stuff) {
+	jsonasstring += stuff.toString();
+	try {
+	    var jsontouse = JSON.parse(jsonasstring);
+	    if (gameidtoplaying[jsontouse.gid]) {
+		var requestedgame = gamesplaying[gameidtoplaying[jsontouse]];
+		for (player in requestedgame.players)
+		    if (requestedgames.players[player].id == req.user.id) {
+			data = new Object();
+			data.position = requestedgames.players[player].position;
+		    }
+		if (data) {
+		    res.send(JSON.stringify(data), {'Content-type': 'text/json'});
+		    return;
+		}	
+	    }
+	} catch(SyntaxError) {
+	    console.log(SyntaxError);
+	}
+	res.send("{}", {'Content-type': 'text/json'});
+    });
+});
+
+app.post('/playCard', function(req, res, next) {
+    var jsonasstring = "";
+    req.on('data', function(stuff) {
+	jsonasstring += stuff.toString();
+	try {
+	    var jsontouse = JSON.parse(jsonasstring);
+	    if (gameidtoplaying[jsontouse.gid]) {
+		var requestedgame = gamesplaying[gameidtoplaying[jsontouse]];
+		var emit = false;
+		for (player in requestedgame.players)
+		    if (requestedgame.players[player].id == req.user.id) {
+			var thisplayer = requestedgames.players[player];
+			for (card in thisplayer.hand)
+			    if (thisplayer.hand[card] == jsontouse.card) {
+				thisplayer.hand.splice(card,1);
+				emit = true;
+			    }
+		    }
+		if (emit)
+		    for (player in requestedgame.players)
+			if (requestedgames.players[player].id != req.user.id)
+			    io.sockets[playeridtosocket[requestedgames.players[player].id]].emit('updatecard', jsontouse.card);
+	    }
+	} catch(SyntaxError) {
+	    console.log(SyntaxError);
+	}
+	res.send("{}", {'Content-type': 'text/json'});
+    });
+});
+
 //app.get('/listgames', function(req, res, next) {
-//    
+//
 //});
 
 app.use(express.static(__dirname + '/public'));
